@@ -1,0 +1,22 @@
+Fresh v1.1 fixes the immediate frozen helper window.
+
+Root cause fixed:
+  The Win32 GUI/message loop was not pinned to one OS thread in Go.
+
+Recovery design:
+  Elgato deviceDidDisconnect
+        |
+        v
+  remember same Elgato device ID
+        |
+        v
+  wait 350 ms
+        |
+        +-- deviceDidConnect received from Elgato -> cancel reset
+        |
+        +-- no Elgato reconnect -> force selected Windows PnP reset
+
+The Windows USB disconnect can last only a split millisecond.
+The helper is not polling fast enough to catch it; the Elgato SDK event is the trigger.
+
+Serial number is never used.
